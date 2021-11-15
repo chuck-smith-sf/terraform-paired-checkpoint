@@ -24,6 +24,7 @@ resource "aws_vpc" "vpc0" {
 resource "aws_subnet" "subnet0" {
   vpc_id     = aws_vpc.vpc0.id
   cidr_block = "10.0.1.0/24"
+  availability_zone = "us-east-1a"
 
   tags = {
     Name = "sn-tf"
@@ -66,7 +67,6 @@ resource "aws_security_group" "SG" {
   ingress {
     from_port        = 80
     to_port          = 80
-    # type             = "HTTP"
     protocol         = "TCP"
     cidr_blocks      = ["0.0.0.0/0"]
   }
@@ -74,8 +74,14 @@ resource "aws_security_group" "SG" {
     ingress {
     from_port        = 22
     to_port          = 22
-    # type             = "SSH"
     protocol         = "TCP"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+    egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
     cidr_blocks      = ["0.0.0.0/0"]
   }
 
@@ -93,6 +99,8 @@ resource "aws_instance" "web" {
   vpc_security_group_ids = [aws_security_group.SG.id]
   subnet_id              = aws_subnet.subnet0.id
   associate_public_ip_address = true
+  availability_zone = "us-east-1a"
+  user_data = file("install.sh")
 
   tags = {
     Name = "ec2-tf"
@@ -103,3 +111,4 @@ resource "aws_instance" "web" {
 output "ec2-public-IPV4" {
   value = aws_instance.web.public_ip
 }
+
