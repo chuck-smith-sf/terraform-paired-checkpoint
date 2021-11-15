@@ -83,3 +83,23 @@ resource "aws_security_group" "SG" {
     Name = "sg-tf"
   }
 }
+
+# Create EC2 Instance
+resource "aws_instance" "web" {
+  ami                    = "ami-04ad2567c9e3d7893"
+  instance_type          = "t2.micro"
+  key_name               = "terraform-checkpoint"
+  monitoring             = true
+  vpc_security_group_ids = [aws_security_group.SG.id]
+  subnet_id              = aws_subnet.subnet0.id
+  associate_public_ip_address = true
+
+  tags = {
+    Name = "ec2-tf"
+  }
+}
+
+# Create Output Variable
+output "ec2-public-IPV4" {
+  value = aws_instance.web.public_ip
+}
