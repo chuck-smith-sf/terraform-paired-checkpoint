@@ -29,6 +29,27 @@ resource "aws_subnet" "subnet0" {
   }
 }
 
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.vpc0.id
+
+  tags = {
+    Name = "gw-tf"
+  }
+}
+
+resource "aws_route_table" "rt" {
+  vpc_id = aws_vpc.vpc0.id
+
+  route {
+    cidr_block = "10.0.1.0/24"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+  tags = {
+    Name = "rt-tf"
+  }
+}
+
 # variable "common_cidr_block" {
 #   type    = string
 #   default = "10.0.30.0/24"
