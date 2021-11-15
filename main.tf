@@ -20,6 +20,7 @@ resource "aws_vpc" "vpc0" {
   }
 }
 
+# Create Subnet
 resource "aws_subnet" "subnet0" {
   vpc_id     = aws_vpc.vpc0.id
   cidr_block = "10.0.1.0/24"
@@ -29,6 +30,7 @@ resource "aws_subnet" "subnet0" {
   }
 }
 
+# Create Internet Gateway
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.vpc0.id
 
@@ -37,6 +39,7 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
+# Create Route Table
 resource "aws_route_table" "rt" {
   vpc_id = aws_vpc.vpc0.id
 
@@ -50,35 +53,33 @@ resource "aws_route_table" "rt" {
   }
 }
 
+# Create Subnet to Route Table association
 resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.subnet0.id
   route_table_id = aws_route_table.rt.id
 }
 
-# variable "common_cidr_block" {
-#   type    = string
-#   default = "10.0.30.0/24"
-# }
+# Create Security Group
+resource "aws_security_group" "SG" {
+  vpc_id      = aws_vpc.vpc0.id
 
+  ingress {
+    from_port        = 80
+    to_port          = 80
+    # type             = "HTTP"
+    protocol         = "TCP"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
 
-# resource "aws_subnet" "subnet0" {
-#   vpc_id     = aws_vpc.vpc0.id
-#   cidr_block = var.common_cidr_block
+    ingress {
+    from_port        = 22
+    to_port          = 22
+    # type             = "SSH"
+    protocol         = "TCP"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
 
-#   tags = {
-#     Name = "example-subnet"
-#   }
-# }
-
-# output "subnet0_id" {
-#   value = aws_subnet.subnet0.vpc_id
-# }
-
-# resource "aws_subnet" "subnet0" {
-#   vpc_id     = aws_vpc.vpc0.id
-#   cidr_block = "10.0.1.0/24"
-
-#   tags = {
-#     Name = "example-subnet"
-#   }
-# }
+  tags = {
+    Name = "sg-tf"
+  }
+}
